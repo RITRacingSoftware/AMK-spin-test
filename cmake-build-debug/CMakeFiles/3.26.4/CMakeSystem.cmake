@@ -3,7 +3,7 @@ set(CMAKE_HOST_SYSTEM_NAME "Darwin")
 set(CMAKE_HOST_SYSTEM_VERSION "23.4.0")
 set(CMAKE_HOST_SYSTEM_PROCESSOR "arm64")
 
-include("/Users/solomonshulman/RITRacing/TEMP/CMakeToolchain.txt")
+include("/Users/solomonshulman/RITRacing/AMK-spin-test/CMakeToolchain.txt")
 
 set(CMAKE_SYSTEM "Generic")
 set(CMAKE_SYSTEM_NAME "Generic")
