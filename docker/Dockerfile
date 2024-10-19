@@ -9,10 +9,10 @@ gcc-arm-none-eabi \
 gdb-multiarch \
 openocd
 
-WORKDIR /TEMP
+WORKDIR /spin_test
 
 # Setup user
 ARG UID=1000
-ARG UNAME=TEMP
+ARG UNAME=spin_test
 RUN useradd -mu ${UID} -s /usr/bin/bash ${UNAME}
 USER ${UID}
