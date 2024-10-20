@@ -57,6 +57,11 @@ CORE_INCLUDES := -I $(CORE_DIR)/Inc $(STM32CUBE_INCLUDES) $(FREERTOS_INCLUDES)
 CORE_INCLUDES := $(foreach d, $(CORE_INCLUDES),-I $d)
 CORE_OBJS :=  $(CORE_SRCS:$(CORE_DIR)/%=$(STM32_BUILD_DIR)/obj/core/%.o)
 
+DBC_DIR := lib/Formula-Main-DBC/c_files
+DBC_SRCS := $(shell find $(DBC_DIR) -type f -name "*.c")
+DBC_INCLUDES := -I $(DBC_DIR)
+DBC_OBJS := $(DBC_SRCS:$(DBC_DIR)/%=$(STM32_BUILD_DIR)/obj/dbc/%.o)
+
 
 # Compilation targets
 .PHONY: all
@@ -77,12 +82,12 @@ $(STM32_BUILD_DIR)/$(PROJECT_NAME)-$(PROJECT_VERSION).elf: $(STM32_APP_OBJS) $(S
 # application objects
 $(STM32_BUILD_DIR)/obj/app/%.c.o: $(APP_DIR)/%.c
 	@[ -d $(@D) ] || mkdir -p $(@D)
-	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(APP_INCLUDE) $(DRIVER_INCLUDE) $(FREERTOS_INCLUDES) $(CORE_INCLUDES) -c $< -o $@
+	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(APP_INCLUDE) $(DRIVER_INCLUDE) $(FREERTOS_INCLUDES) $(STM32CUBE_INCLUDES) -c $< -o $@
 
 # driver objects
 $(STM32_BUILD_DIR)/obj/driver/%.c.o: $(DRIVER_DIR)/%.c
 	@[ -d $(@D) ] || mkdir -p $(@D)
-	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(DRIVER_INCLUDE) $(STM32CUBE_INCLUDES) $(CORE_INCLUDES) -c $< -o $@
+	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(DRIVER_INCLUDE) $(STM32CUBE_INCLUDES) $(CORE_INCLUDES) $(DBC_INCLUDES) -c $< -o $@
 
 # stm32cube objects
 $(STM32_BUILD_DIR)/obj/stm32cube/%.c.o: $(STM32CUBE_DIR)/%.c
@@ -102,6 +107,11 @@ $(STM32_BUILD_DIR)/obj/freertos/%.c.o: $(FREERTOS_DIR)/%.c
 $(STM32_BUILD_DIR)/obj/core/%.c.o: $(CORE_DIR)/%.c
 	@[ -d $(@D) ] || mkdir -p $(@D)
 	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(STM32CUBE_INCLUDES) $(CORE_INCLUDES) -c $< -o $@
+
+# dbc objects
+$(STM32_BUILD_DIR)/obj/dbc/%.c.o: $(DBC_DIR)/%.c
+	@[ -d $(@D) ] || mkdir -p $(@D)
+	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(STM32CUBE_INCLUDES) $(DBC_INCLUDES) -c $< -o $@
 
 # Misc targets
 .PHONY: clean
