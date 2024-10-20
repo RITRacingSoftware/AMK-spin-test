@@ -7,3 +7,7 @@
 [submodule "lib/Core"]
 	path = lib/Core
 	url = https://github.com/RITRacingSoftware/Core
+[submodule "lib/Formula-Main-DBC"]
+	path = lib/Formula-Main-DBC
+	url = https://github.com/RITRacingSoftware/Formula-Main-DBC.git
+	branch = f33

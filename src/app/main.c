@@ -3,40 +3,35 @@
 #include <stm32g4xx_hal.h>
 #include <stdbool.h>
 
-#include "can.h"
-#include "clock.h"
-#include "gpio.h"
-#include "error_handler.h"
+#include "VC/VC.h"
+#include "CAN/driver_can.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 
+void hardfault_error_handler();
 
-#define TEST_CAN_ID1 3
-#define TEST_CAN_ID2 3
+void task_CAN_tx(void *pvParameters)
+{
+    (void) pvParameters;
+    CAN_tx();
+}
 
-CanMessage_s canMessage;
-
-void task1(void *pvParameters)
+void task_CAN_rx(void *pvParameters)
 {
     (void) pvParameters;
     while(true)
     {
-        if (!core_CAN_add_message_to_tx_queue(FDCAN2, 3, 2, 0xfa55)) error_handler();
-        if (core_CAN_send_from_tx_queue_task(FDCAN2))
-        {
-            core_GPIO_toggle_heartbeat();
-        }
-//        vTaskDelay(10 / portTICK_PERIOD_MS);
+        CAN_rx();
     }
 }
 
-void heartbeat_task(void *pvParameters)
+void task_heartbeat(void *pvParameters)
 {
     (void) pvParameters;
     while(true)
     {
-        if (core_CAN_add_message_to_tx_queue(FDCAN2, 3, 2, 0xfa55)) core_GPIO_toggle_heartbeat();
+        toggle_heartbeat();
         vTaskDelay(100 * portTICK_PERIOD_MS);
     }
 }
@@ -44,36 +39,37 @@ void heartbeat_task(void *pvParameters)
 int main(void)
 {
     HAL_Init();
+    VC_init();
 
-    // Drivers
-    core_heartbeat_init(GPIOB, GPIO_PIN_9);
-    core_GPIO_set_heartbeat(GPIO_PIN_RESET);
+    int err = xTaskCreate(task_CAN_tx,
+        "CAN_tx",
+        1000,
+        NULL,
+        3,
+        NULL);
+    if (err != pdPASS) hardfault_error_handler();
 
-    if (!core_clock_init()) error_handler();
-    if (!core_CAN_init(FDCAN2)) error_handler();
-    if (!core_CAN_add_filter(FDCAN2, false,
-                             TEST_CAN_ID1, TEST_CAN_ID2))
-    {
-        error_handler();
-    }
+    err = xTaskCreate(task_CAN_rx,
+        "CAN_rx",
+        1000,
+        NULL,
+        3,
+        NULL);
+    if (err != pdPASS) hardfault_error_handler();
 
-    int err = xTaskCreate(task1,
-                          "Task1",
-                          1000,
-                          NULL,
-                          4,
-                          NULL);
-    if (err != pdPASS) {
-        error_handler();
-    }
-
-    NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+    err = xTaskCreate(task_heartbeat,
+        "heartbeat_task",
+        1000,
+        NULL,
+        4,
+        NULL);
+    if (err != pdPASS) hardfault_error_handler();
 
     // hand control over to FreeRTOS
     vTaskStartScheduler();
 
     // we should not get here ever
-    error_handler();
+    hardfault_error_handler();
     return 1;
 }
 
@@ -84,5 +80,14 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName)
     (void) xTask;
     (void) pcTaskName;
 
-    error_handler();
+    hardfault_error_handler();
+}
+
+void hardfault_error_handler()
+{
+    while(1)
+    {
+        toggle_heartbeat();
+        for (unsigned long long  i = 0; i < 200000; i++);
+    }
 }
