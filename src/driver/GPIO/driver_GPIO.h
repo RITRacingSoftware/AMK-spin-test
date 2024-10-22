@@ -34,10 +34,10 @@
 
 
 void GPIO_init();
-bool start_button_pressed();
-bool precharge_button_pressed();
-void set_precharge_relay(bool on);
-bool precharge_done_button_pressed();
-bool enable_button_pressed();
-void set_activate_inv_relays(bool on);
-void set_interlock_relay(bool on);
+bool GPIO_start_button_pressed();
+bool GPIO_precharge_button_pressed();
+void GPIO_set_precharge_relay(bool on);
+bool GPIO_precharge_done_button_pressed();
+bool GPIO_enable_button_pressed();
+void GPIO_set_activate_inv_relays(bool on);
+void GPIO_set_interlock_relay(bool on);

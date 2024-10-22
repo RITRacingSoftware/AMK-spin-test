@@ -5,6 +5,7 @@
 
 #include "VC/VC.h"
 #include "CAN/driver_can.h"
+#include "Inverters/Inverters.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -23,6 +24,19 @@ void task_CAN_rx(void *pvParameters)
     while(true)
     {
         CAN_rx();
+    }
+}
+
+
+void task_100Hz(void *pvParameters)
+{
+    (void) pvParameters;
+    TickType_t next_wake_time = xTaskGetTickCount();
+    while(true)
+    {
+        Inverters_100Hz();
+        VehicleControllerState_100Hz();
+        vTaskDelayUntil(&next_wake_time, 10);
     }
 }
 
@@ -63,6 +77,14 @@ int main(void)
         NULL,
         4,
         NULL);
+    if (err != pdPASS) hardfault_error_handler();
+
+    err = xTaskCreate(task_100Hz,
+          "100hz_task",
+          1000,
+          NULL,
+          4,
+          NULL);
     if (err != pdPASS) hardfault_error_handler();
 
     // hand control over to FreeRTOS
