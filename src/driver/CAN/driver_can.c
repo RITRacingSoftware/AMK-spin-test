@@ -24,5 +24,4 @@ void CAN_rx()
 //                break;
         }
     }
-
 }
