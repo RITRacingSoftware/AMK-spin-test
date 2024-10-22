@@ -11,27 +11,24 @@
 typedef struct
 {
     bool isReady;
-    bool hvOnEcho;
-    bool hvOn;
+    bool dcOnEcho;
+    bool dcOn;
     bool isOnEcho;
     bool isOn;
 } Inverter_s;
 
 void inv_init();
+void Inverters_100Hz();
 
-bool get_ready(uint8_t invNum);
-void set_ready(uint8_t invNum, bool val);
+// Getters for inverter struct values
+bool Inverters_get_ready(uint8_t invNum);
+bool Inverters_get_dc_on_echo(uint8_t invNum);
+bool Inverters_get_dc_on(uint8_t invNum);
+bool Inverters_get_inv_on_echo(uint8_t invNum);
+bool Inverters_get_inv_on(uint8_t invNum);
 
-bool get_hv_on_echo(uint8_t invNum);
-void set_hv_on_echo(uint8_t invNum, bool val);
-
-bool get_hv_on(uint8_t invNum);
-void set_hv_on(uint8_t invNum, bool val);
-
-bool get_inv_on_echo(uint8_t invNum);
-void set_inv_on_echo(uint8_t invNum, bool val);
-
-bool get_inv_on(uint8_t invNum);
-void set_inv_on(uint8_t invNum, bool val);
-
-bool check_all(bool (*f_ptr)(uint8_t));
+// Setters for DBC struct values
+void Inverters_set_dc_on(bool val);
+void Inverters_set_enable(bool val);
+void Inverters_set_inv_on(bool val);
+void Inverters_set_torque_request(int16_t setpoint, int16_t negLimit, int16_t posLimit);
