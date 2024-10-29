@@ -21,7 +21,6 @@ STM32_ASM_FLAGS := $(STM32_CC_FLAGS)
 STM32_LD_SCRIPT := STM32G473RETx_FLASH.ld
 STM32_LD_FLAGS := $(STM32_COMMON_FLAGS) -static -Wl,--gc-sections -T $(STM32_LD_SCRIPT)
 
-
 # Sources
 APP_DIR := src/app
 APP_SRCS := $(shell find $(APP_DIR) -type f -name "*.c")
@@ -62,7 +61,6 @@ DBC_SRCS := $(shell find $(DBC_DIR) -type f -name "*.c")
 DBC_INCLUDES := -I $(DBC_DIR)
 DBC_OBJS := $(DBC_SRCS:$(DBC_DIR)/%=$(STM32_BUILD_DIR)/obj/dbc/%.o)
 
-
 # Compilation targets
 .PHONY: all
 all: spin_test
@@ -75,14 +73,14 @@ $(STM32_BUILD_DIR)/$(PROJECT_NAME)-$(PROJECT_VERSION).bin: $(STM32_BUILD_DIR)/$(
 	@[ -d $(@D) ] || mkdir -p $(@D)
 	$(STM32_OBJCOPY) -O binary $< $@
 
-$(STM32_BUILD_DIR)/$(PROJECT_NAME)-$(PROJECT_VERSION).elf: $(STM32_APP_OBJS) $(STM32_DRIVER_OBJS) $(STM32CUBE_OBJS) $(FREERTOS_OBJS) $(CORE_OBJS)
+$(STM32_BUILD_DIR)/$(PROJECT_NAME)-$(PROJECT_VERSION).elf: $(STM32_APP_OBJS) $(STM32_DRIVER_OBJS) $(STM32CUBE_OBJS) $(FREERTOS_OBJS) $(CORE_OBJS) $(DBC_OBJS)
 	@[ -d $(@D) ] || mkdir -p $(@D)
 	$(STM32_LD) $(STM32_LD_FLAGS) $^ -o $@
 
 # application objects
 $(STM32_BUILD_DIR)/obj/app/%.c.o: $(APP_DIR)/%.c
 	@[ -d $(@D) ] || mkdir -p $(@D)
-	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(APP_INCLUDE) $(DRIVER_INCLUDE) $(FREERTOS_INCLUDES) $(STM32CUBE_INCLUDES) -c $< -o $@
+	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(APP_INCLUDE) $(DRIVER_INCLUDE) $(FREERTOS_INCLUDES) $(STM32CUBE_INCLUDES) $(DBC_INCLUDES) -c $< -o $@
 
 # driver objects
 $(STM32_BUILD_DIR)/obj/driver/%.c.o: $(DRIVER_DIR)/%.c
@@ -111,7 +109,7 @@ $(STM32_BUILD_DIR)/obj/core/%.c.o: $(CORE_DIR)/%.c
 # dbc objects
 $(STM32_BUILD_DIR)/obj/dbc/%.c.o: $(DBC_DIR)/%.c
 	@[ -d $(@D) ] || mkdir -p $(@D)
-	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(STM32CUBE_INCLUDES) $(DBC_INCLUDES) -c $< -o $@
+	$(STM32_CC) $(STM32_CC_FLAGS) -I src $(DBC_INCLUDES) -c $< -o $@
 
 # Misc targets
 .PHONY: clean

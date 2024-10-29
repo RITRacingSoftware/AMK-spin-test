@@ -1,4 +1,7 @@
-#pragma once
+#ifndef DRIVER_CAN_H
+#define DRIVER_CAN_H
+
+#include "config.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -12,7 +15,6 @@ typedef struct
     struct inverter_dbc_rr_amk_actual_2_t rr_actual2;
     struct inverter_dbc_rr_amk_rit_set1_t rr_set1;
     struct inverter_dbc_rr_amk_rit_set2_t rr_set2;
-
 
     struct inverter_dbc_rl_amk_actual_1_t rl_actual1;
     struct inverter_dbc_rl_amk_actual_2_t rl_actual2;
@@ -36,13 +38,10 @@ typedef struct
     struct inverter_dbc_fl_amk_setpoints_t fl_setpoints;
 } CAN_BUS;
 
-CAN_BUS canBus;
+extern CAN_BUS canBus;
 
 bool CAN_tx();
 void CAN_rx();
-
-void CAN_tx_dc_on(bool on);
-void CAN_tx_inv_enable(bool on);
-void CAN_tx_inv_on(bool on);
-void CAN_tx_actual_speed_value(int rpm);
-void CAN_tx_torque_request(int16_t setpoint, int16_t negLimit, int16_t posLimit);
+int CAN_pack_message(int id, uint8_t *msg_data);
+bool CAN_add_filters();
+#endif
