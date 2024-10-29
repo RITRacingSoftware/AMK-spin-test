@@ -17,8 +17,9 @@ typedef struct
     bool isOn;
 } Inverter_s;
 
-void inv_init();
+void Inverters_init();
 void Inverters_100Hz();
+void Inverters_update();
 
 // Getters for inverter struct values
 bool Inverters_get_ready(uint8_t invNum);
@@ -31,4 +32,6 @@ bool Inverters_get_inv_on(uint8_t invNum);
 void Inverters_set_dc_on(bool val);
 void Inverters_set_enable(bool val);
 void Inverters_set_inv_on(bool val);
-void Inverters_set_torque_request(int16_t setpoint, int16_t negLimit, int16_t posLimit);
+void Inverters_set_torque_request(uint8_t invNum, double setpoint, double negLimit, double posLimit);
+
+void Inverters_send_setpoints(uint8_t invNum);

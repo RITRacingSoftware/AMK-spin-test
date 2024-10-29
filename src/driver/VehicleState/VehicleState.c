@@ -1,12 +1,15 @@
 #include "VehicleState.h"
 #include "config.h"
 
+#include "gpio.h"
+#include "can.h"
 #include "Inverters/Inverters.h"
 #include "CAN/driver_can.h"
 #include "GPIO/driver_GPIO.h"
 
 
 #define TIME_DELAY 2000
+#define INV INV_RR
 
 static VehicleState_e state;
 static int timer;
@@ -23,12 +26,13 @@ void VehicleState_init()
     timer = 0;
 }
 
-void VehicleControllerState_100Hz()
+void VehicleState_100Hz()
 {
     switch(state)
     {
         case VehicleState_VC_NOT_READY:
             // If the button is pressed, move to next state
+            core_GPIO_set_heartbeat(true);
             if (GPIO_start_button_pressed())
             {
                 new_state(VehicleState_INVERTERS_POWERED);
@@ -38,18 +42,20 @@ void VehicleControllerState_100Hz()
 
         case VehicleState_INVERTERS_POWERED:
             // If all inverters are ready move to next state
+            core_GPIO_set_heartbeat(false);
 
             // AMK_bSystemReady = 1
             if (Inverters_get_ready(INV_RR) &&
                 Inverters_get_ready(INV_RL) &&
                 Inverters_get_ready(INV_FR) &&
-                Inverters_get_ready(INV_RL))
+                Inverters_get_ready(INV_FL))
             {
                 new_state(VehicleState_INVERTERS_READY);
             }
             break;
 
         case VehicleState_INVERTERS_READY:
+            core_GPIO_set_heartbeat(true);
             // Wait TIME_DELAY
             if (timer < TIME_DELAY) break;
 
@@ -64,7 +70,8 @@ void VehicleControllerState_100Hz()
 
         case VehicleState_PRECHARGING:
             // Wait TIME_DELAY
-            if (timer < TIME_DELAY) break;
+            core_GPIO_set_heartbeat(false);
+//            if (timer < TIME_DELAY) break;
 
             // If precharge is confirmed finished, send it over CAN
             if (GPIO_precharge_done_button_pressed())
@@ -93,15 +100,8 @@ void VehicleControllerState_100Hz()
             break;
 
         case VehicleState_WAIT:
-
-            // Every 200ms send 0 on torque requests
-            if (timer >= 200)
-            {
-                CAN_tx_actual_speed_value(0);
-                CAN_tx_torque_request(0, 0, 0);
-                timer = 0;
-            }
-
+            core_GPIO_set_heartbeat(true);
+            Inverters_set_torque_request(INV, 0, 0, 0);
             if (GPIO_enable_button_pressed())
             {
                 new_state(VehicleState_STANDBY);
@@ -109,6 +109,7 @@ void VehicleControllerState_100Hz()
             break;
 
         case VehicleState_STANDBY:
+            core_GPIO_set_heartbeat(false);
             // Set inverter enable and on
             Inverters_set_enable(true); // AMK_bEnable = 1
             Inverters_set_inv_on(true); // AMLK_bInverterOn = 1
@@ -136,22 +137,19 @@ void VehicleControllerState_100Hz()
             break;
 
         case VehicleState_RUNNING:
-            // Every 200ms send torque requests at set values
-            if (timer >= 200)
-            {
-                CAN_tx_torque_request(TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
-                timer = 0;
-            }
+            core_GPIO_set_heartbeat(true);
+            Inverters_set_torque_request(INV, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
 
             // If the start button is pressed again, shutdown
             if (GPIO_start_button_pressed())
             {
                 new_state(VehicleState_SHUTDOWN);
             }
+            break;
 
         case VehicleState_SHUTDOWN:
             // Send zeroes for torque requests, turn off activation relay, send inverter off message
-            Inverters_set_torque_request(0, 0, 0);
+            Inverters_set_torque_request(INV_RR,  0, 0, 0);
             GPIO_set_activate_inv_relays(false); // X140 binary input BE2 = 0
             Inverters_set_inv_on(false); // AMK_bInverterOn = 0
 
