@@ -23,6 +23,8 @@ void GPIO_init()
     core_GPIO_digital_write(RL_ACTIVATE_RELAY_PORT, RL_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(FR_ACTIVATE_RELAY_PORT, FR_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(FL_ACTIVATE_RELAY_PORT, FL_ACTIVATE_RELAY_PIN, false);
+
+    GPIO_set_activate_inv_relays(false);
 }
 
 bool GPIO_start_button_pressed() {return !core_GPIO_digital_read(START_BUTTON_PORT, START_BUTTON_PIN);}
@@ -46,4 +48,14 @@ void GPIO_set_activate_inv_relays(bool on)
 void GPIO_set_interlock_relay(bool on)
 {
     core_GPIO_digital_write(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN, on);
+}
+
+void GPIO_toggle_precharge_relay()
+{
+    HAL_GPIO_TogglePin(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN);
+}
+
+void GPIO_toggle_interlock_relay()
+{
+    HAL_GPIO_TogglePin(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN);
 }

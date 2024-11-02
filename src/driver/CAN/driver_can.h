@@ -33,9 +33,13 @@ typedef struct
 
     // Sent by VC
     struct inverter_dbc_rr_amk_setpoints_t rr_setpoints;
+    struct inverter_dbc_rr_amk_setpoints2_t rr_setpoints2;
     struct inverter_dbc_rl_amk_setpoints_t rl_setpoints;
+    struct inverter_dbc_rl_amk_setpoints2_t rl_setpoints2;
     struct inverter_dbc_fr_amk_setpoints_t fr_setpoints;
+    struct inverter_dbc_fr_amk_setpoints2_t fr_setpoints2;
     struct inverter_dbc_fl_amk_setpoints_t fl_setpoints;
+    struct inverter_dbc_fl_amk_setpoints2_t fl_setpoints2;
 } CAN_BUS;
 
 extern CAN_BUS canBus;

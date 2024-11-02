@@ -97,14 +97,26 @@ int CAN_pack_message(int id, uint8_t *msg_data)
         case INVERTER_DBC_RR_AMK_SETPOINTS_FRAME_ID:
             return inverter_dbc_rr_amk_setpoints_pack(msg_data, &canBus.rr_setpoints, 8);
 
+        case INVERTER_DBC_RR_AMK_SETPOINTS2_FRAME_ID:
+            return inverter_dbc_rr_amk_setpoints2_pack(msg_data, &canBus.rr_setpoints2, 2);
+
         case INVERTER_DBC_RL_AMK_SETPOINTS_FRAME_ID:
             return inverter_dbc_rl_amk_setpoints_pack(msg_data, &canBus.rl_setpoints, 8);
+
+        case INVERTER_DBC_RL_AMK_SETPOINTS2_FRAME_ID:
+            return inverter_dbc_rl_amk_setpoints2_pack(msg_data, &canBus.rl_setpoints2, 2);
 
         case INVERTER_DBC_FR_AMK_SETPOINTS_FRAME_ID:
             return inverter_dbc_fr_amk_setpoints_pack(msg_data, &canBus.fr_setpoints, 8);
 
+        case INVERTER_DBC_FR_AMK_SETPOINTS2_FRAME_ID:
+            return inverter_dbc_fr_amk_setpoints2_pack(msg_data, &canBus.fr_setpoints2, 2);
+
         case INVERTER_DBC_FL_AMK_SETPOINTS_FRAME_ID:
             return inverter_dbc_fl_amk_setpoints_pack(msg_data, &canBus.fl_setpoints, 8);
+
+        case INVERTER_DBC_FL_AMK_SETPOINTS2_FRAME_ID:
+            return inverter_dbc_fl_amk_setpoints2_pack(msg_data, &canBus.fl_setpoints2, 2);
 
         default:
             break;
