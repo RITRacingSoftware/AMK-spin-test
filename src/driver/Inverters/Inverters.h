@@ -35,3 +35,4 @@ void Inverters_set_inv_on(bool val);
 void Inverters_set_torque_request(uint8_t invNum, double setpoint, double negLimit, double posLimit);
 
 void Inverters_send_setpoints(uint8_t invNum);
+void Inverters_send_setpoints2(uint8_t invNum);

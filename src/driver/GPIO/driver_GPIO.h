@@ -49,3 +49,6 @@ bool GPIO_precharge_done_button_pressed();
 bool GPIO_enable_button_pressed();
 void GPIO_set_activate_inv_relays(bool on);
 void GPIO_set_interlock_relay(bool on);
+
+void GPIO_toggle_precharge_relay();
+void GPIO_toggle_interlock_relay();
