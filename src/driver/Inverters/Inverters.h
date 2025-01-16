@@ -15,6 +15,8 @@ typedef struct
     bool dcOn;
     bool isOnEcho;
     bool isOn;
+    double dcBusVoltage;
+    double dcMonitor;
 } Inverter_s;
 
 void Inverters_init();
@@ -27,6 +29,7 @@ bool Inverters_get_dc_on_echo(uint8_t invNum);
 bool Inverters_get_dc_on(uint8_t invNum);
 bool Inverters_get_inv_on_echo(uint8_t invNum);
 bool Inverters_get_inv_on(uint8_t invNum);
+bool Inverters_get_precharged(uint8_t invNum);
 
 // Setters for DBC struct values
 void Inverters_set_dc_on(bool val);
@@ -35,4 +38,3 @@ void Inverters_set_inv_on(bool val);
 void Inverters_set_torque_request(uint8_t invNum, double setpoint, double negLimit, double posLimit);
 
 void Inverters_send_setpoints(uint8_t invNum);
-void Inverters_send_setpoints2(uint8_t invNum);

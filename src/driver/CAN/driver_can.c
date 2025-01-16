@@ -4,7 +4,6 @@
 #include "inverter_dbc.h"
 #include "VC/VC.h"
 
-
 CAN_BUS canBus;
 
 int idArr[NUM_IDS_FDCAN2] = {
@@ -40,7 +39,6 @@ void CAN_rx()
             data[i] = (canMessage.data >> (i * 8)) & 0xff;
         }
         int id = canMessage.id;
-//        toggle_heartbeat();
 
         switch (id)
         {

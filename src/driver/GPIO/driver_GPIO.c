@@ -4,38 +4,54 @@
 
 void GPIO_init()
 {
-    core_GPIO_init(START_BUTTON_PORT, START_BUTTON_PIN, GPIO_MODE_INPUT, GPIO_NOPULL);
-    core_GPIO_init(PRECHARGE_BUTTON_PORT, PRECHARGE_BUTTON_PIN, GPIO_MODE_INPUT, GPIO_NOPULL);
-    core_GPIO_init(PRECHARGE_DONE_BUTTON_PORT, PRECHARGE_DONE_BUTTON_PIN, GPIO_MODE_INPUT, GPIO_NOPULL);
-    core_GPIO_init(ENABLE_BUTTON_PORT, ENABLE_BUTTON_PIN, GPIO_MODE_INPUT, GPIO_NOPULL);
+    core_GPIO_init(TSMS_PORT, TSMS_PIN, GPIO_MODE_INPUT, GPIO_PULLDOWN);
+    core_GPIO_init(RTD_BUTTON_PORT, RTD_BUTTON_PIN, GPIO_MODE_INPUT, GPIO_PULLDOWN);
 
     core_GPIO_init(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
-    core_GPIO_init(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+    core_GPIO_init(AIR1_PORT, AIR1_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+
+    core_GPIO_init(VC_LED_PORT, VC_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+    core_GPIO_init(MAIN_LED_PORT, MAIN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+    core_GPIO_init(AMK_LED_PORT, AMK_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+    core_GPIO_init(SENSOR_LED_PORT, SENSOR_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
 
     core_GPIO_init(RR_ACTIVATE_RELAY_PORT, RR_ACTIVATE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(RL_ACTIVATE_RELAY_PORT, RL_ACTIVATE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(FR_ACTIVATE_RELAY_PORT, FR_ACTIVATE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(FL_ACTIVATE_RELAY_PORT, FL_ACTIVATE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
 
+    core_GPIO_init(RR_STATUS_PORT, RR_STATUS_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+    core_GPIO_init(RL_STATUS_PORT, RL_STATUS_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+    core_GPIO_init(FR_STATUS_PORT, FR_STATUS_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+    core_GPIO_init(FL_STATUS_PORT, FL_STATUS_PIN, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL);
+
     core_GPIO_digital_write(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN, false);
-    core_GPIO_digital_write(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN, false);
+    core_GPIO_digital_write(AIR1_PORT, AIR1_PIN, false);
     core_GPIO_digital_write(RR_ACTIVATE_RELAY_PORT, RR_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(RL_ACTIVATE_RELAY_PORT, RL_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(FR_ACTIVATE_RELAY_PORT, FR_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(FL_ACTIVATE_RELAY_PORT, FL_ACTIVATE_RELAY_PIN, false);
 
+    core_GPIO_digital_write(VC_LED_PORT, VC_LED_PIN, false);
+    core_GPIO_digital_write(MAIN_LED_PORT, MAIN_LED_PIN, false);
+    core_GPIO_digital_write(AMK_LED_PORT, AMK_LED_PIN, false);
+    core_GPIO_digital_write(SENSOR_LED_PORT, SENSOR_LED_PIN, false);
+
+    core_GPIO_digital_write(RR_STATUS_PORT, RR_STATUS_PIN, false);
+    core_GPIO_digital_write(RL_STATUS_PORT, RL_STATUS_PIN, false);
+    core_GPIO_digital_write(FR_STATUS_PORT, FR_STATUS_PIN, false);
+    core_GPIO_digital_write(FL_STATUS_PORT, FL_STATUS_PIN, false);
+
+    core_heartbeat_init(RR_STATUS_PORT, RR_STATUS_PIN);
+
     GPIO_set_activate_inv_relays(false);
 }
 
-bool GPIO_start_button_pressed() {return !core_GPIO_digital_read(START_BUTTON_PORT, START_BUTTON_PIN);}
+void GPIO_set_precharge_relay(bool on) {core_GPIO_digital_write(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN, on);}
+void GPIO_set_interlock_relay(bool on) {core_GPIO_digital_write(AIR1_PORT, AIR1_PIN, on);}
 
-bool GPIO_precharge_button_pressed() {return !core_GPIO_digital_read(PRECHARGE_BUTTON_PORT, PRECHARGE_BUTTON_PIN);}
-
-void GPIO_set_precharge_relay(bool on) {core_GPIO_digital_write(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN, true);}
-
-bool GPIO_precharge_done_button_pressed() {return !core_GPIO_digital_read(PRECHARGE_DONE_BUTTON_PORT, PRECHARGE_DONE_BUTTON_PIN);}
-
-bool GPIO_enable_button_pressed() {return !core_GPIO_digital_read(ENABLE_BUTTON_PORT, ENABLE_BUTTON_PIN);}
+bool GPIO_get_TSMS() {return core_GPIO_digital_read(TSMS_PORT, TSMS_PIN);}
+bool GPIO_get_RTD() {return core_GPIO_digital_read(RTD_BUTTON_PORT, RTD_BUTTON_PIN);}
 
 void GPIO_set_activate_inv_relays(bool on)
 {
@@ -43,19 +59,4 @@ void GPIO_set_activate_inv_relays(bool on)
     core_GPIO_digital_write(RL_ACTIVATE_RELAY_PORT, RL_ACTIVATE_RELAY_PIN, on);
     core_GPIO_digital_write(FR_ACTIVATE_RELAY_PORT, FR_ACTIVATE_RELAY_PIN, on);
     core_GPIO_digital_write(FL_ACTIVATE_RELAY_PORT, FL_ACTIVATE_RELAY_PIN, on);
-}
-
-void GPIO_set_interlock_relay(bool on)
-{
-    core_GPIO_digital_write(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN, on);
-}
-
-void GPIO_toggle_precharge_relay()
-{
-    HAL_GPIO_TogglePin(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN);
-}
-
-void GPIO_toggle_interlock_relay()
-{
-    HAL_GPIO_TogglePin(INTERLOCK_RELAY_PORT, INTERLOCK_RELAY_PIN);
 }

@@ -5,6 +5,7 @@
 #include "can.h"
 #include "CAN/driver_can.h"
 #include "gpio.h"
+#include "GPIO/driver_GPIO.h"
 
 static Inverter_s invRR;
 static Inverter_s invRL;
@@ -12,8 +13,6 @@ static Inverter_s invFR;
 static Inverter_s invFL;
 
 static Inverter_s *invArr[4] = {&invRR, &invRL, &invFR, &invFL};
-
-static int last_checkin_ms;
 
 void Inverters_init()
 {
@@ -26,7 +25,7 @@ void Inverters_init()
         invPtr->isOnEcho = false;
         invPtr->isOn = false;
     }
-    last_checkin_ms = 0;
+
     inverter_dbc_rr_amk_actual_1_init(&canBus.rr_actual1);
     inverter_dbc_rl_amk_actual_1_init(&canBus.rl_actual1);
     inverter_dbc_fr_amk_actual_1_init(&canBus.fr_actual1);
@@ -52,6 +51,8 @@ void Inverters_update()
         invRR.dcOn = (bool) inverter_dbc_rr_amk_actual_1_rr_status_quit_dc_on_decode(canBus.rr_actual1.rr_status_quit_dc_on);
         invRR.isOnEcho = (bool) inverter_dbc_rr_amk_actual_1_rr_status_inverter_on_decode(canBus.rr_actual1.rr_status_inverter_on);
         invRR.isOn = (bool) inverter_dbc_rr_amk_actual_1_rr_status_quit_inverter_on_decode(canBus.rr_actual1.rr_status_quit_inverter_on);
+        invRR.dcBusVoltage = inverter_dbc_rr_amk_rit_set2_rr_dc_bus_voltage_decode(canBus.rr_set2.rr_dc_bus_voltage);
+        invRR.dcMonitor = inverter_dbc_rr_amk_rit_set2_rr_dc_bus_voltage_monitoring_decode(canBus.rr_set2.rr_dc_bus_voltage_monitoring);
 
         // Update RL values
 //        invRL.isReady = canBus.rl_actual1.rl_status_system_ready;
@@ -60,6 +61,8 @@ void Inverters_update()
         invRL.dcOn = (bool) inverter_dbc_rl_amk_actual_1_rl_status_quit_dc_on_decode(canBus.rl_actual1.rl_status_quit_dc_on);
         invRL.isOnEcho = (bool) inverter_dbc_rl_amk_actual_1_rl_status_inverter_on_decode(canBus.rl_actual1.rl_status_inverter_on);
         invRL.isOn = (bool) inverter_dbc_rl_amk_actual_1_rl_status_quit_inverter_on_decode(canBus.rl_actual1.rl_status_quit_inverter_on);
+        invRL.dcBusVoltage = inverter_dbc_rl_amk_rit_set2_rl_dc_bus_voltage_decode(canBus.rl_set2.rl_dc_bus_voltage);
+        invRL.dcMonitor = inverter_dbc_rl_amk_rit_set2_rl_dc_bus_voltage_monitoring_decode(canBus.rl_set2.rl_dc_bus_voltage_monitoring);
 
         // Update FR values
 //        invFR.isReady = canBus.fr_actual1.fr_status_system_ready;
@@ -68,6 +71,8 @@ void Inverters_update()
         invFR.dcOn = (bool) inverter_dbc_fr_amk_actual_1_fr_status_quit_dc_on_decode(canBus.fr_actual1.fr_status_quit_dc_on);
         invFR.isOnEcho = (bool) inverter_dbc_fr_amk_actual_1_fr_status_inverter_on_decode(canBus.fr_actual1.fr_status_inverter_on);
         invFR.isOn = (bool) inverter_dbc_fr_amk_actual_1_fr_status_quit_inverter_on_decode(canBus.fr_actual1.fr_status_quit_inverter_on);
+        invFR.dcBusVoltage = inverter_dbc_fr_amk_rit_set2_fr_dc_bus_voltage_decode(canBus.fr_set2.fr_dc_bus_voltage);
+        invFR.dcMonitor = inverter_dbc_fr_amk_rit_set2_fr_dc_bus_voltage_monitoring_decode(canBus.fr_set2.fr_dc_bus_voltage_monitoring);
 
         // Update FL values
 //        invFL.isReady = canBus.fl_actual1.fl_status_system_ready;
@@ -76,6 +81,8 @@ void Inverters_update()
         invFL.dcOn = (bool) inverter_dbc_fl_amk_actual_1_fl_status_quit_dc_on_decode(canBus.fl_actual1.fl_status_quit_dc_on);
         invFL.isOnEcho = (bool) inverter_dbc_fl_amk_actual_1_fl_status_inverter_on_decode(canBus.fl_actual1.fl_status_inverter_on);
         invFL.isOn = (bool) inverter_dbc_fl_amk_actual_1_fl_status_quit_inverter_on_decode(canBus.fl_actual1.fl_status_quit_inverter_on);
+        invFL.dcBusVoltage = inverter_dbc_fl_amk_rit_set2_fl_dc_bus_voltage_decode(canBus.fl_set2.fl_dc_bus_voltage);
+        invFL.dcMonitor = inverter_dbc_fl_amk_rit_set2_fl_dc_bus_voltage_monitoring_decode(canBus.fl_set2.fl_dc_bus_voltage_monitoring);
 }
 
 bool Inverters_get_ready(uint8_t invNum) {return invArr[invNum]->isReady;}
@@ -83,6 +90,27 @@ bool Inverters_get_dc_on_echo(uint8_t invNum) {return invArr[invNum]->dcOnEcho;}
 bool Inverters_get_dc_on(uint8_t invNum) {return invArr[invNum]->dcOn;}
 bool Inverters_get_inv_on_echo(uint8_t invNum) {return invArr[invNum]->isOnEcho;}
 bool Inverters_get_inv_on(uint8_t invNum) {return invArr[invNum]->isOn;}
+
+bool Inverters_get_precharged(uint8_t invNum)
+{
+
+    Inverter_s *invPtr;
+
+    switch (invNum)
+    {
+        case INV_RR: invPtr = &invRR; break;
+        case INV_RL: invPtr = &invRL; break;
+        case INV_FR: invPtr = &invFR; break;
+        case INV_FL: invPtr = &invFL; break;
+    }
+
+    core_GPIO_digital_write(RR_STATUS_PORT, RR_STATUS_PIN, invRR.dcBusVoltage > invRR.dcMonitor);
+    core_GPIO_digital_write(RL_STATUS_PORT, RL_STATUS_PIN, invRL.dcBusVoltage > invRL.dcMonitor);
+    core_GPIO_digital_write(FR_STATUS_PORT, FR_STATUS_PIN, invFR.dcBusVoltage > invFR.dcMonitor);
+    core_GPIO_digital_write(FL_STATUS_PORT, FL_STATUS_PIN, invFL.dcBusVoltage > invFL.dcMonitor);
+
+    return (invPtr->dcBusVoltage > invPtr->dcMonitor);
+}
 
 void Inverters_set_dc_on(bool val)
 {
@@ -165,28 +193,3 @@ void Inverters_send_setpoints(uint8_t invNum)
         core_CAN_add_message_to_tx_queue(FDCAN2, id, 8, msg_data);
     }
 }
-
-//void Inverters_send_setpoints2(uint8_t invNum)
-//{
-//    uint16_t msg_data;
-//
-//    int id;
-//    switch (invNum)
-//    {
-//        case INV_RR:
-//            id = INVERTER_DBC_RR_AMK_SETPOINTS2_FRAME_ID; break;
-//
-//        case INV_RL:
-//            id = INVERTER_DBC_RL_AMK_SETPOINTS2_FRAME_ID; break;
-//
-//        case INV_FR:
-//            id = INVERTER_DBC_FR_AMK_SETPOINTS2_FRAME_ID; break;
-//
-//        case INV_FL:
-//            id = INVERTER_DBC_FL_AMK_SETPOINTS2_FRAME_ID; break;
-//    }
-//    if (CAN_pack_message(id, (uint8_t *)&msg_data) != -1)
-//    {
-//        core_CAN_add_message_to_tx_queue(FDCAN2, id, 2, msg_data);
-//    }
-//}

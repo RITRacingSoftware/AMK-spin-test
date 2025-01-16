@@ -12,15 +12,10 @@
 #include "GPIO/driver_GPIO.h"
 #include "VehicleState/VehicleState.h"
 
-#define TIME_DELAY 2000
-
-
 bool VC_init()
 {
     HAL_Init();
     // Inits
-    core_heartbeat_init(GPIOB, GPIO_PIN_9);
-    core_GPIO_set_heartbeat(GPIO_PIN_RESET);
 
     if (!core_clock_init()) return false;
     if (!core_CAN_init(FDCAN2)) return false;
@@ -37,6 +32,7 @@ void VC_100Hz()
 {
     VehicleState_100Hz();
     Inverters_100Hz();
+//    core_CAN_add_message_to_tx_queue(FDCAN2, 3, 2, 0xfa55);
 }
 
 void toggle_heartbeat()

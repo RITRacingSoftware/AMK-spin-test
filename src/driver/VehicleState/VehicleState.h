@@ -4,7 +4,6 @@ typedef enum
 {
     VehicleState_VC_NOT_READY, // Doing nothing, default state
     VehicleState_INVERTERS_POWERED, // Reads for inverters saying they're ready
-    VehicleState_INVERTERS_READY, // Waits for precharge button to be pressed, activates precharge relay
     VehicleState_PRECHARGING, // When precharge done button is pressed, send it out,
     // receive echo and confirmation, flip interlock relay
     VehicleState_WAIT, // Wait for enable button to be pressed
