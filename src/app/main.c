@@ -12,8 +12,8 @@
 #include "task.h"
 
 #define VC_100HZ_PRIORITY (tskIDLE_PRIORITY + 1)
-#define CAN_RX_PRIORITY (tskIDLE_PRIORITY + 4)
-#define CAN_TX_PRIORITY (tskIDLE_PRIORITY + 4)
+#define CAN_RX_PRIORITY (tskIDLE_PRIORITY + 3)
+#define CAN_TX_PRIORITY (tskIDLE_PRIORITY + 3)
 
 void hardfault_error_handler();
 
@@ -30,7 +30,7 @@ void task_CAN_rx(void *pvParameters)
     while(true)
     {
         CAN_rx();
-        vTaskDelayUntil(&next_wake_time, 1);
+//        vTaskDelayUntil(&next_wake_time, 1);
     }
 }
 
@@ -68,7 +68,7 @@ int main(void)
         NULL,
         CAN_TX_PRIORITY,
         NULL);
-    if (err != pdPASS) hardfault_error_handler();
+    if (err != pdPASS) toggle_heartbeat();
 
     err = xTaskCreate(task_CAN_rx,
         "CAN_rx",

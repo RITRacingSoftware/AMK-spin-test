@@ -10,7 +10,7 @@ void GPIO_init()
     core_GPIO_init(PRECHARGE_RELAY_PORT, PRECHARGE_RELAY_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(AIR1_PORT, AIR1_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
 
-    core_GPIO_init(VC_LED_PORT, VC_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
+//    core_GPIO_init(VC_LED_PORT, VC_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(MAIN_LED_PORT, MAIN_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(AMK_LED_PORT, AMK_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
     core_GPIO_init(SENSOR_LED_PORT, SENSOR_LED_PIN, GPIO_MODE_OUTPUT_PP, GPIO_PULLDOWN);
@@ -32,7 +32,7 @@ void GPIO_init()
     core_GPIO_digital_write(FR_ACTIVATE_RELAY_PORT, FR_ACTIVATE_RELAY_PIN, false);
     core_GPIO_digital_write(FL_ACTIVATE_RELAY_PORT, FL_ACTIVATE_RELAY_PIN, false);
 
-    core_GPIO_digital_write(VC_LED_PORT, VC_LED_PIN, false);
+//    core_GPIO_digital_write(VC_LED_PORT, VC_LED_PIN, false);
     core_GPIO_digital_write(MAIN_LED_PORT, MAIN_LED_PIN, false);
     core_GPIO_digital_write(AMK_LED_PORT, AMK_LED_PIN, false);
     core_GPIO_digital_write(SENSOR_LED_PORT, SENSOR_LED_PIN, false);
@@ -42,7 +42,7 @@ void GPIO_init()
     core_GPIO_digital_write(FR_STATUS_PORT, FR_STATUS_PIN, false);
     core_GPIO_digital_write(FL_STATUS_PORT, FL_STATUS_PIN, false);
 
-    core_heartbeat_init(RR_STATUS_PORT, RR_STATUS_PIN);
+    core_heartbeat_init(VC_LED_PORT, VC_LED_PIN);
 
     GPIO_set_activate_inv_relays(false);
 }

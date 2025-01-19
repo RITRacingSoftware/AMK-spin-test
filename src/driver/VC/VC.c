@@ -11,32 +11,38 @@
 #include "CAN/driver_can.h"
 #include "GPIO/driver_GPIO.h"
 #include "VehicleState/VehicleState.h"
+#include "Accel/Accel.h"
+#include "error_handler.h"
+#include "usart.h"
 
 bool VC_init()
 {
     HAL_Init();
     // Inits
-
     if (!core_clock_init()) return false;
+    if (!core_USART_init(USART3, 500000)) return false;
     if (!core_CAN_init(FDCAN2)) return false;
     if (!CAN_add_filters()) return false;
+    uprintf(USART3, "test\n");
 
     GPIO_init();
     VehicleState_init();
     Inverters_init();
+    Accel_init();
 
     return true;
 }
 
 void VC_100Hz()
 {
+    if (Accel_update_task()) error_handler();
     VehicleState_100Hz();
     Inverters_100Hz();
-//    core_CAN_add_message_to_tx_queue(FDCAN2, 3, 2, 0xfa55);
 }
 
 void toggle_heartbeat()
 {
+//    core_GPIO_digital_write(MAIN_LED_PORT, MAIN_LED_PIN, true);
     core_GPIO_toggle_heartbeat();
 }
 

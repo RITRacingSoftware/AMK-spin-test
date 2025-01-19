@@ -6,6 +6,7 @@
 #include "Inverters/Inverters.h"
 #include "CAN/driver_can.h"
 #include "GPIO/driver_GPIO.h"
+#include "Accel/Accel.h"
 
 
 #define TIME_DELAY 2000
@@ -14,6 +15,10 @@ static VehicleState_e state;
 static int timer;
 
 unsigned long heartbeatTimes = 0;
+
+static bool forward;
+
+static uint8_t rtd_debounce_count;
 
 static void new_state(VehicleState_e new)
 {
@@ -25,6 +30,8 @@ void VehicleState_init()
     // Set default values
     state = VehicleState_VC_NOT_READY;
     timer = 0;
+    rtd_debounce_count = 0;
+    forward = true;
 }
 
 void VehicleState_100Hz()
@@ -34,7 +41,6 @@ void VehicleState_100Hz()
     {
         case VehicleState_VC_NOT_READY:
             // If the button is pressed, move to next state
-            core_GPIO_digital_write(VC_LED_PORT, VC_LED_PIN, true);
             if (core_GPIO_digital_read(TSMS_PORT, TSMS_PIN))
             {
                 new_state(VehicleState_INVERTERS_POWERED);
@@ -111,7 +117,7 @@ void VehicleState_100Hz()
             break;
 
         case VehicleState_STANDBY:
-            core_GPIO_digital_write(VC_LED_PORT, VC_LED_PIN, false);
+            core_GPIO_digital_write(MAIN_LED_PORT, MAIN_LED_PIN, false);
 
             // Set inverter enable and on
             Inverters_set_enable(true); // AMK_bEnable = 1
@@ -120,16 +126,16 @@ void VehicleState_100Hz()
             // Receive echo for inverters commanded on
             // AMK_bInverterOn = 1 MIRROR
             if (!(/*Inverters_get_inv_on_echo(INV_RR) &&*/
-                  /*Inverters_get_inv_on_echo(INV_RL)*/
-                  Inverters_get_inv_on_echo(INV_FR)
-                  /*Inverters_get_inv_on_echo(INV_FL)*/)) break;
+                  /*Inverters_get_inv_on_echo(INV_RL) &&
+                  Inverters_get_inv_on_echo(INV_FR) &&*/
+                  Inverters_get_inv_on_echo(INV_FL))) break;
 
             // Receive confirmation that inverters are on
             // AMK_bQuitInverterOn = 1
             if (!(/*Inverters_get_inv_on(INV_RR) &&*/
-                  /*Inverters_get_inv_on(INV_RL)*/
-                  Inverters_get_inv_on(INV_FR)
-                  /*Inverters_get_inv_on(INV_FL)*/)) break;
+                  /*Inverters_get_inv_on(INV_RL) &&
+                  Inverters_get_inv_on(INV_FR) &&*/
+                  Inverters_get_inv_on(INV_FL))) break;
 
             // Switch relay allowing inverters to read real torque requests
             // X140 binary input BE2 = 1
@@ -140,11 +146,23 @@ void VehicleState_100Hz()
             break;
 
         case VehicleState_RUNNING:
-            core_GPIO_digital_write(MAIN_LED_PORT, MAIN_LED_PIN, false);
+            core_GPIO_digital_write(AMK_LED_PORT, AMK_LED_PIN, false);
 //            Inverters_set_torque_request(INV_RR, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
 //            Inverters_set_torque_request(INV_RL, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
-            Inverters_set_torque_request(INV_FR, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
-//            Inverters_set_torque_request(INV_FL, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
+//            Inverters_set_torque_request(INV_FR, TORQUE_SETPOINT, NEG_TORQUE_LIMIT, POS_TORQUE_LIMIT);
+
+
+            if (!GPIO_get_RTD()) rtd_debounce_count = 0;
+            else if (rtd_debounce_count >= 50)
+            {
+                if (rtd_debounce_count == 50)
+                    forward = !forward;
+                rtd_debounce_count  = 51;
+            }
+            else rtd_debounce_count += 1;
+
+            Inverters_set_torque_request(INV_FL, (int)(Accel_get_pos() * MAX_TORQUE) * (forward? 1 : -1)
+                                         , -(MAX_TORQUE), MAX_TORQUE);
 
             // If the start button is pressed again, shutdown
             if (!GPIO_get_TSMS())
@@ -154,7 +172,7 @@ void VehicleState_100Hz()
             break;
 
         case VehicleState_SHUTDOWN:
-            core_GPIO_digital_write(AMK_LED_PORT, AMK_LED_PIN, false);
+            core_GPIO_digital_write(SENSOR_LED_PORT, SENSOR_LED_PIN, false);
             // Send zeroes for torque requests, turn off activation relay, send inverter off message
             Inverters_set_torque_request(INV_RL,  0, 0, 0);
             Inverters_set_torque_request(INV_FL,  0, 0, 0);

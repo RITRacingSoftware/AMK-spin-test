@@ -6,6 +6,30 @@
 
 /** Inverters **/
 #define TORQUE_SETPOINT 2
-#define POS_TORQUE_LIMIT 4
+#define POS_TORQUE_LIMIT 5
 #define NEG_TORQUE_LIMIT (-1)
+#define MAX_TORQUE 5
+
+/** ANALOG **/
+#define VOLTAGE_TOL 0.001
+#define ADC_MAX_VAL 4095
+#define ADC_MAX_VOLTAGE 3.3
+
+/** ACCEL **/
+#define ACCEL_A_MAX_V 2.9
+#define ACCEL_A_OFFSET_V 0.25
+#define ACCEL_A_RANGE_V (ACCEL_A_MAX_V - ACCEL_A_OFFSET_V)
+#define ACCEL_A_IRRATIONAL_LOW_V 0.05
+
+#define ACCEL_B_MAX_V 1.6
+#define ACCEL_B_OFFSET_V 0.1
+#define ACCEL_B_RANGE_V (ACCEL_B_MAX_V - ACCEL_B_OFFSET_V)
+#define ACCEL_B_IRRATIONAL_LOW_V 0.0
+
+#define ACCEL_MAX_DISAGREEMENT 10
+
+#define ACCEL_POS_TOL 1
+
+#define USE_PEDAL
+
 #define INV_CAN_TIMEOUT_MS 300

@@ -8,6 +8,9 @@
 #define CORE_CLOCK_SYSCLK_FREQ 160000
 #define CORE_CLOCK_HSI_FREQ 16000
 
+/*** ERROR HANDLER PARAMETERS ***/
+#define ERROR_HANDLER_BLINK_DELAY 200000
+
 
 /*** CAN CONFIG PARAMETERS ***/
 
@@ -16,6 +19,9 @@
 
 // Number of CAN messages that can be stored in the CAN FreeRTOS queue
 #define CORE_CAN_QUEUE_LENGTH 15
+
+// Timeout for waiting on RX queue
+#define CORE_CAN_RX_TIMEOUT 100
 
 // Ports and pins for CAN communication
 #define CORE_FDCAN1_TX_PORT GPIOA
@@ -102,6 +108,9 @@
 /*** USART CONFIG PARAMETERS ***/
 #define CORE_USART_RXBUFLEN 512
 #define CORE_USART_RX_TIMEOUT 64
+
+#define CORE_USART_UPRINTF
+#define CORE_USART_TXBUFLEN 512
 
 #define CORE_USART1_PORT GPIOC
 #define CORE_USART1_PINS (GPIO_PIN_4 | GPIO_PIN_5)
