@@ -86,11 +86,7 @@ bool Accel_update_task() {
         faulting = true;
 
 //    uprintf(USART3, "Error: %d, A: %d, B: %d\n", errorList, (int)(accelAVoltage * 1000), (int)(accelBVoltage * 1000));
-
-
-
-
-    return faulting;
+    return !faulting;
 }
 
 static void errorCheck()
@@ -116,7 +112,7 @@ static void errorCheck()
         errorList |= ACCEL_DISAGREEMENT_ERROR;
     }
 
-    uprintf(USART3, "Error: %d, A: %d, B: %d, A irr ms: %d, B irr ms: %d\n", errorList, (int)(accelAVoltage * 1000), (int)(accelBVoltage * 1000), accel_A_irr_ms, accel_B_irr_ms);
+//    uprintf(USART3, "Error: %d, A: %d, B: %d, A irr ms: %d, B irr ms: %d\n", errorList, (int)(accelAVoltage * 1000), (int)(accelBVoltage * 1000), accel_A_irr_ms, accel_B_irr_ms);
 }
 
 float Accel_get_pos()

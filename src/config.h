@@ -3,12 +3,18 @@
 /** CAN **/
 #define NUM_IDS_FDCAN2 12
 #define NUM_IDS_FDCAN3 12
+#define CAN_SENSE FDCAN1
+#define CAN_MAIN FDCAN2
+#define CAN_INV FDCAN3
 
 /** Inverters **/
 #define TORQUE_SETPOINT 2
-#define POS_TORQUE_LIMIT 5
-#define NEG_TORQUE_LIMIT (-1)
-#define MAX_TORQUE 5
+#define POS_TORQUE_LIMIT 2
+#define NEG_TORQUE_LIMIT (-2)
+
+#define MAX_TORQUE 21
+#define REGEN_SPEED_THRESHOlD 100
+#define MAX_REGEN_PCT 0.75
 
 /** ANALOG **/
 #define VOLTAGE_TOL 0.001
@@ -27,6 +33,8 @@
 #define ACCEL_B_IRRATIONAL_LOW_V 0.0
 
 #define ACCEL_MAX_DISAGREEMENT 10
+
+#define ACCEL_REGEN_THRESHOLD 0.35
 
 #define ACCEL_POS_TOL 1
 

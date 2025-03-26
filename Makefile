@@ -56,7 +56,7 @@ CORE_INCLUDES := -I $(CORE_DIR)/Inc $(STM32CUBE_INCLUDES) $(FREERTOS_INCLUDES)
 CORE_INCLUDES := $(foreach d, $(CORE_INCLUDES),-I $d)
 CORE_OBJS :=  $(CORE_SRCS:$(CORE_DIR)/%=$(STM32_BUILD_DIR)/obj/core/%.o)
 
-DBC_DIR := lib/Formula-Main-DBC/c_files
+DBC_DIR := lib/Formula-DBC/c_files
 DBC_SRCS := $(shell find $(DBC_DIR) -type f -name "*.c")
 DBC_INCLUDES := -I $(DBC_DIR)
 DBC_OBJS := $(DBC_SRCS:$(DBC_DIR)/%=$(STM32_BUILD_DIR)/obj/dbc/%.o)

@@ -17,6 +17,14 @@
 
 void hardfault_error_handler();
 
+
+void task_CAN_main(void *pvParameters)
+{
+    (void) pvParameters;
+    if (!CAN_main_tx()) hardfault_error_handler();
+}
+
+
 void task_CAN_tx(void *pvParameters)
 {
     (void) pvParameters;
@@ -41,6 +49,7 @@ void task_100Hz(void *pvParameters)
     while(true)
     {
         VC_100Hz();
+        Inverters_send_setpoints(INV_RL);
         vTaskDelayUntil(&next_wake_time, 10);
     }
 }
@@ -77,14 +86,25 @@ int main(void)
         CAN_RX_PRIORITY,
         NULL);
     if (err != pdPASS) hardfault_error_handler();
-
-    err = xTaskCreate(task_heartbeat,
-        "heartbeat_task",
-        1000,
+    
+    err = xTaskCreate(task_CAN_main,
+        "CAN_main",
+        5000,
         NULL,
-        1,
+        CAN_RX_PRIORITY,
         NULL);
     if (err != pdPASS) hardfault_error_handler();
+    
+
+
+//
+//    err = xTaskCreate(task_heartbeat,
+//        "heartbeat_task",
+//        1000,
+//        NULL,
+//        1,
+//        NULL);
+//    if (err != pdPASS) hardfault_error_handler();
 
     err = xTaskCreate(task_100Hz,
           "100hz_task",
